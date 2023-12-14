@@ -36,3 +36,9 @@ jobs:
       #   timeout-minutes: 5
       #   env:
       #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+    
+      - name: Trivy File Scan
+        run: |
+            docker run --rm -v $(pwd):/workdir aquasec/trivy:latest fs /workdir
