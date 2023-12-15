@@ -7,8 +7,7 @@ on:
 
 
 jobs:
-  build:
-    name: Build
+  checkandbuild:
     runs-on: self-hosted
     steps:
       - name: Checkout Repository
@@ -18,7 +17,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-  
+          
       - name: Install NPM Dependencies
         run: npm install
 
@@ -45,10 +44,21 @@ jobs:
             docker run --rm -v $(pwd):/workdir aquasec/trivy:latest fs /workdir
 
       - name: Build Image
-        run: docker build -t ghcr.io/kurniawanfaridjadmiko/Project-CI-CD-2:${{ github.run_number }} .
+        run: docker build -t ghcr.io/kurniawanfaridjadmiko/project-ci-cd-2:${{ github.run_number }} .
 
       - name: Log in GHCR
         run: docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.TOKEN }}
 
       - name: Push to GHCR
-        run: docker push ghcr.io/kurniawanfaridjadmiko/Project-CI-CD-2:${{ github.run_number }}
+        run: docker push ghcr.io/kurniawanfaridjadmiko/project-ci-cd-2:${{ github.run_number }}
+
+  pull:
+    needs: checkandbuild
+    runs-on: self-hosted
+      
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Pull
+        run: docker pull ghcr.io/kurniawanfaridjadmiko/project-ci-cd-2:${{ github.run_number }}
